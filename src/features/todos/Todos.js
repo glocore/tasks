@@ -1,7 +1,9 @@
+import { Container, List } from "@material-ui/core";
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { NewTodoInput } from "./NewTodoInput";
 import { selectTodos, fetchTodosAsync, addTodoAsync } from "./todoSlice";
+import { TodoItem } from "./TodoItem";
 
 export const Todos = () => {
   const todos = useSelector(selectTodos);
@@ -16,13 +18,21 @@ export const Todos = () => {
   };
 
   return (
-    <div>
+    <Container maxWidth="md">
       <NewTodoInput onSubmit={addTodo} />
-      <ul>
-        {todos.map((todo, index) => (
-          <li key={index}>{todo.description}</li>
+      <List>
+        {todos.map((todo) => (
+          <TodoItem
+            key={todo.id}
+            id={todo.id}
+            description={todo.description}
+            completed={!!todo.completed_at}
+            onToggleCompleted={() => {}}
+            onDelete={() => {}}
+            onDescriptionUpdate={() => {}}
+          />
         ))}
-      </ul>
-    </div>
+      </List>
+    </Container>
   );
 };
