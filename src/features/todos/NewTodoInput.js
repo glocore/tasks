@@ -5,6 +5,18 @@ import { useState } from "react";
 const useStyles = makeStyles((theme) => ({
   textField: {
     width: "100%",
+  },
+  textFieldRoot: {
+    borderColor: theme.palette.primary.main,
+  },
+  textFieldInput: {
+    color: theme.palette.primary.main,
+    "&::placeholder": {
+      color: theme.palette.primary.main,
+      opacity: 1,
+    },
+  },
+  inputAdornment: {
     color: theme.palette.primary.main,
   },
 }));
@@ -33,9 +45,13 @@ export const NewTodoInput = ({ onSubmit }) => {
       className={classes.textField}
       color="primary"
       InputProps={{
+        classes: {
+          input: classes.textFieldInput,
+          root: classes.textFieldRoot,
+        },
         startAdornment: (
           <InputAdornment position="start">
-            <AddIcon />
+            <AddIcon className={classes.inputAdornment} />
           </InputAdornment>
         ),
       }}

@@ -14,6 +14,10 @@ const useStyles = makeStyles((theme) => ({
   },
   title: {
     flexGrow: 1,
+    fontWeight: "bold",
+    [theme.breakpoints.down("md")]: {
+      textAlign: "center",
+    },
   },
   loadingIndicator: {
     color: "white",
