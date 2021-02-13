@@ -15,23 +15,17 @@ import {
   completeTodoAsync,
   deleteTodoAsync,
   uncompleteTodoAsync,
+  updateTodoDescriptionAsync,
 } from "./todoSlice";
+import styles from "./TodoItem.module.css";
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    "&:hover $deleteButton": {
-      visibility: "visible",
-    },
-  },
   descriptionCompleted: {
     textDecoration: "line-through",
     color: theme.palette.text.disabled,
   },
   descriptionEditField: {
     marginRight: theme.spacing(2),
-  },
-  deleteButton: {
-    visibility: "visible",
   },
 }));
 
@@ -52,7 +46,9 @@ export const TodoItem = ({
 
   const finishEditing = () => {
     setIsEditing(false);
-    onDescriptionUpdate(editedDescription);
+    if (editedDescription.length > 0) {
+      dispatch(updateTodoDescriptionAsync(id, editedDescription));
+    }
   };
 
   const updateEditedDescription = (event) => {
@@ -69,53 +65,50 @@ export const TodoItem = ({
   };
 
   const handleSubmit = (event) => {
-    if (event.key === "Enter" && editedDescription.length > 0) {
+    if (event.key === "Enter") {
       finishEditing();
     }
   };
 
   return (
-    <ListItem
-      role={undefined}
-      dense
-      button
-      disableRipple
-      className={classes.root}
-    >
-      <ListItemIcon>
-        <Checkbox
-          edge="start"
-          checked={completed}
-          onChange={(_, checked) => toggleCompleted(checked)}
-        />
-      </ListItemIcon>
-      {isEditing ? (
-        <TextField
-          value={editedDescription}
-          fullWidth
-          className={classes.descriptionEditField}
-          autoFocus
-          onChange={updateEditedDescription}
-          onKeyPress={handleSubmit}
-          onBlur={finishEditing}
-        />
-      ) : (
-        <ListItemText
-          onClick={startEditing}
-          className={completed ? classes.descriptionCompleted : undefined}
-        >
-          {description}
-        </ListItemText>
-      )}
-      <ListItemSecondaryAction>
-        <IconButton
-          aria-label="delete"
-          onClick={() => dispatch(deleteTodoAsync(id))}
-          className={classes.deleteButton}
-        >
-          <DeleteIcon />
-        </IconButton>
-      </ListItemSecondaryAction>
-    </ListItem>
+    <div className={styles.listItem}>
+      <ListItem role={undefined} dense button disableRipple>
+        <ListItemIcon>
+          <Checkbox
+            edge="start"
+            checked={completed}
+            onChange={(_, checked) => toggleCompleted(checked)}
+          />
+        </ListItemIcon>
+        {isEditing ? (
+          <TextField
+            value={editedDescription}
+            fullWidth
+            multiline
+            className={classes.descriptionEditField}
+            autoFocus
+            onChange={updateEditedDescription}
+            onKeyPress={handleSubmit}
+            onBlur={finishEditing}
+          />
+        ) : (
+          <ListItemText
+            onClick={startEditing}
+            className={completed ? classes.descriptionCompleted : undefined}
+          >
+            {editedDescription}
+          </ListItemText>
+        )}
+        <ListItemSecondaryAction>
+          <IconButton
+            aria-label="delete"
+            onClick={() => dispatch(deleteTodoAsync(id))}
+            className={styles.deleteButton}
+          >
+            <DeleteIcon />
+          </IconButton>
+        </ListItemSecondaryAction>
+      </ListItem>
+    </div>
   );
 };

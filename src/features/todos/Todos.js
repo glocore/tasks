@@ -18,7 +18,7 @@ export const Todos = () => {
   };
 
   return (
-    <Container maxWidth="md">
+    <Container maxWidth="md" disableGutters>
       <NewTodoInput onSubmit={addTodo} />
       <List>
         {todos.map((todo) => (

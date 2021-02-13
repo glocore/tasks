@@ -1,0 +1,9 @@
+@media (hover: hover) {
+  .deleteButton {
+    opacity: 0;
+  }
+}
+
+.listItem:hover .deleteButton {
+  opacity: 1;
+}

@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, nanoid } from "@reduxjs/toolkit";
 
 export const todosSlice = createSlice({
   name: "todos",
@@ -34,6 +34,12 @@ export const todosSlice = createSlice({
     addTodo: (state, action) => {
       state.todos.unshift(action.payload);
     },
+    updateTempTodo: (state, action) => {
+      const { tempId, todo } = action.payload;
+      const todoIndex = state.todos.findIndex((value) => value.id === tempId);
+
+      state.todos[todoIndex] = todo;
+    },
     completeTodo: (state, action) => {
       const todoIndex = state.todos.findIndex(
         (value) => value.id === action.payload
@@ -48,7 +54,12 @@ export const todosSlice = createSlice({
 
       state.todos[todoIndex].completed_at = null;
     },
-    updateTodoDescription: (state, action) => {},
+    updateTodoDescription: (state, action) => {
+      const { id, description } = action.payload;
+      const todoIndex = state.todos.findIndex((value) => value.id === id);
+
+      state.todos[todoIndex].description = description;
+    },
     deleteTodo: (state, action) => {
       const todoIndex = state.todos.findIndex(
         (todo) => todo.id === action.payload
@@ -63,6 +74,7 @@ export const {
   updateTodos,
   sortTodos,
   addTodo,
+  updateTempTodo,
   completeTodo,
   uncompleteTodo,
   updateTodoDescription,
@@ -83,7 +95,15 @@ export const fetchTodosAsync = () => async (dispatch) => {
 };
 
 export const addTodoAsync = (description) => async (dispatch) => {
+  const tempId = nanoid();
+  const tempTodo = {
+    id: tempId,
+    description,
+  };
+
+  dispatch(addTodo(tempTodo));
   dispatch(updateLoading(true));
+
   const response = await fetch(`${baseUrl}api/v1/users/${userId}/tasks`, {
     method: "POST",
     body: JSON.stringify({
@@ -96,39 +116,41 @@ export const addTodoAsync = (description) => async (dispatch) => {
 
   const todo = await response.json();
 
-  dispatch(addTodo(todo));
+  dispatch(updateTempTodo({ tempId, todo }));
   dispatch(updateLoading(false));
 };
 
 export const completeTodoAsync = (id) => async (dispatch) => {
-  dispatch(updateLoading(true));
   dispatch(completeTodo(id));
+  dispatch(sortTodos());
+  dispatch(updateLoading(true));
 
   await fetch(`${baseUrl}api/v1/users/${userId}/tasks/${id}/completed`, {
     method: "PUT",
   });
 
-  dispatch(sortTodos());
   dispatch(updateLoading(false));
 };
 
 export const uncompleteTodoAsync = (id) => async (dispatch) => {
-  dispatch(updateLoading(true));
   dispatch(uncompleteTodo(id));
+  dispatch(sortTodos());
+  dispatch(updateLoading(true));
 
   await fetch(`${baseUrl}api/v1/users/${userId}/tasks/${id}/uncompleted`, {
     method: "PUT",
   });
 
-  dispatch(sortTodos());
   dispatch(updateLoading(false));
 };
 
 export const updateTodoDescriptionAsync = (id, description) => async (
   dispatch
 ) => {
+  dispatch(updateTodoDescription({ id, description }));
   dispatch(updateLoading(true));
-  const response = await fetch(`${baseUrl}api/v1/users/${userId}/tasks/${id}`, {
+
+  await fetch(`${baseUrl}api/v1/users/${userId}/tasks/${id}`, {
     method: "PUT",
     body: JSON.stringify({
       task: { description },
@@ -138,19 +160,17 @@ export const updateTodoDescriptionAsync = (id, description) => async (
     },
   });
 
-  const todo = await response.json();
-
-  dispatch(updateTodoDescription(todo));
   dispatch(updateLoading(false));
 };
 
 export const deleteTodoAsync = (id) => async (dispatch) => {
+  dispatch(deleteTodo(id));
   dispatch(updateLoading(true));
+
   await fetch(`${baseUrl}api/v1/users/${userId}/tasks/${id}`, {
     method: "DELETE",
   });
 
-  dispatch(deleteTodo(id));
   dispatch(updateLoading(false));
 };
 
